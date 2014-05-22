@@ -4,7 +4,7 @@
 Name: Related Post Box
 Author: Nadiar AS -- ngeblog.co
 Description: Adds Related Post with Img to Thesis.
-Version: 2.1.0
+Version: 2.1.1
 Class: related_post_box
 */
 
@@ -68,24 +68,42 @@ class related_post_box extends thesis_box {
 		
 		// activate
 		if ($options['activate']) {
-		// defaults 
+			/*
+			 *	CORE CODE
+			 */ 
+			$orig_post = $post;
+   			global $post;
+    		$categories = get_the_category($post->ID);
+
 			$title = !empty($this->options['title']) ? $this->options['title'] : 'Related posts';
 			$number = !empty($this->options['number']) ? $this->options['number'] : '4';
 			$width = !empty($this->options['width']) ? $this->options['width'] : '100';
 			$height = !empty($this->options['height']) ? $this->options['height'] : '100';
-			if (is_single()) {
-				global $post;
-				$current_post = $post->ID;
-				$categories = get_the_category();
 
-			?>
-	        	<div id="relatedposts">
-				<h3 class="related_post_label"><?php echo $title; ?></h2>
-				<ul class="related_posts_list">
-				<?php
-				$posts = get_posts('numberposts='. $number .'&category='. $category[0]->term_id . '&exclude=' . $current_post);
-				foreach($posts as $post) :
-				?>
+    		if ($categories) {
+    			$category_ids = array();
+ 				
+ 				foreach($categories as $individual_category) $category_ids[] = $individual_category->term_id;
+
+ 				$args=array(
+    				'category__in' => $category_ids,
+    				'post__not_in' => array($post->ID),
+    				'posts_per_page'=> $number, // Number of related posts that will be shown.
+    				'caller_get_posts'=>1
+    			);
+
+    			$my_query = new wp_query( $args );
+
+    			if( $my_query->have_posts() ) { ?>
+
+    				<div id="relatedposts">
+                	<h3 class="related_post_label"><?php echo $title; ?></h3>
+                	<ul class="related_posts_list">
+
+    				<?php	
+    				while( $my_query->have_posts() ) {
+    					$my_query->the_post(); ?>
+    					<!-- related post <li> -->
 						<li>
 							<div class="relatedthumb">
 								<a href="<? the_permalink()?>" rel="bookmark" title="<?php the_title(); ?>"><?php the_post_thumbnail( array($width, $height) ); ?></a>
@@ -94,12 +112,20 @@ class related_post_box extends thesis_box {
 								<span><a href="<?php the_permalink() ?>" rel="bookmark" title="Permanent Link to <?php the_title_attribute(); ?>"><?php if (strlen($post->post_title) > 65) { echo substr(the_title($before = '', $after = '', FALSE), 0, 65) . '...'; } else { the_title();} ?></a></a></span>
 							</div>
 						</li>
-				<?php endforeach; ?>
-				</ul>
-				</div>
-			<?php
-			}
-			wp_reset_query();
-		}
-	}
+    					<!-- related post </li> -->
+    				<?php
+    				} // end while 
+    				?> 
+    				</ul>
+    				</div>
+    				<?php
+    			} // end if
+			} // end if
+			$post = $orig_post;
+   			wp_reset_query();
+			/*
+			 *	CORE CODE END
+			 */ 
+		} // end if
+	} // end public 
 }

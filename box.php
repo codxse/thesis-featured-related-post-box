@@ -2,9 +2,9 @@
 
 /*
 Name: Related Post Box
-Author: Nadiar AS -- ngeblog.co
+Author: Nadiar AS -- pabelog.com
 Description: Adds Related Post with Img to Thesis.
-Version: 2.1.1
+Version: 2.1.3
 Class: related_post_box
 */
 
@@ -15,9 +15,26 @@ class related_post_box extends thesis_box {
 		$this->title = __('Related Posts Box', 'thesis');
 	}
 	
-	
-	protected function options() {
+	protected function construct() {
 		global $thesis;
+		if (!$this->_display()) return;
+		add_theme_support('post-thumbnails');
+		if (empty($thesis->_wp_featured_image_rss)) {
+			add_filter('the_content', array($this, 'add_image_to_feed'));
+			$thesis->_wp_featured_image_rss = true;
+		}
+	}
+
+	protected function options() {
+		global $thesis, $_wp_additional_image_sizes;
+		$options = array(
+			'full' => __('Full size (default)', 'thesis'),
+			'thumbnail' => __('Thumbnail', 'thesis'),
+			'medium' => __('Medium', 'thesis'),
+			'large' => __('Large', 'thesis'));
+		if (!empty($_wp_additional_image_sizes))
+			foreach ($_wp_additional_image_sizes as $size => $data)
+				$options[$size] = $size;
 		return array(
 			'activate' => array(
 				'type' => 'checkbox',
@@ -40,24 +57,22 @@ class related_post_box extends thesis_box {
 			'number' => array(
 				'type' => 'text',
 				'width' => 'tiny',
-				'label' => __('Number of Related Post', 'thesis'),
+				'label' => __('Max Number of Related Post', 'thesis'),
 				'tooltip' => sprintf(__('Enter the Number of Related Post you want to display(leave blank for 3 posts)', 'thesis')),
 				'default' => '4'
 				),
-			'width' => array(
-				'type' => 'text',
-				'width' => 'small',
-				'label' => __('Width of the Featured Image', 'thesis'),
-				'tooltip' => sprintf(__('Enter the width of the Featured Image (in pixels)', 'thesis')),
-				'default' => '100'
-				),
-			'height' => array(
-				'type' => 'text',
-				'width' => 'small',
-				'label' => __('Height of the Featured Image', 'thesis'),
-				'tooltip' => sprintf(__('Enter the height of the Featured Image (in pixels)', 'thesis')),
-				'default' => '100'
-				)
+			'size' => array(
+				'type' => 'select',
+				'label' => __('Featured Image Size', 'thesis'),
+				'tooltip' => sprintf(__('Choose the size of the Feature Image for this location. The list includes <a href="%s">WordPress standard image sizes</a> and any other registered image sizes.', 'thesis'), admin_url('options-media.php')),
+				'options' => $options,
+				'default' => 'full'),
+			'link' => array(
+				'type' => 'checkbox',
+				'options' => array(
+					'link' => __('Link image to post', 'thesis')),
+				'default' => array(
+					'link' => true))
 		);
 	}
 
@@ -77,8 +92,7 @@ class related_post_box extends thesis_box {
 
 			$title = !empty($this->options['title']) ? $this->options['title'] : 'Related posts';
 			$number = !empty($this->options['number']) ? $this->options['number'] : '4';
-			$width = !empty($this->options['width']) ? $this->options['width'] : '100';
-			$height = !empty($this->options['height']) ? $this->options['height'] : '100';
+			$size = !empty($this->options['size']) ? $this->options['size'] : 'thumbnail';
 
     		if ($categories) {
     			$category_ids = array();
@@ -100,13 +114,22 @@ class related_post_box extends thesis_box {
                 	<h3 class="related_post_label"><?php echo $title; ?></h3>
                 	<ul class="related_posts_list">
 
-    				<?php	
+    			  <?php	
+
+
     				while( $my_query->have_posts() ) {
     					$my_query->the_post(); ?>
     					<!-- related post <li> -->
 						<li>
 							<div class="relatedthumb">
-								<a href="<? the_permalink()?>" rel="bookmark" title="<?php the_title(); ?>"><?php the_post_thumbnail( array($width, $height) ); ?></a>
+							  <?php
+							  	if (!isset($this->options['link'])) { ?>
+								<a href="<?php the_permalink()?>" rel="bookmark" title="<?php the_title(); ?>"><?php the_post_thumbnail( $options['size'] ); ?></a>
+							  <?php
+							  	} else {
+							  		the_post_thumbnail( $options['size'] );
+							  	}
+							  ?>
 							</div>
 							<div class="relatedcontent">
 								<span><a href="<?php the_permalink() ?>" rel="bookmark" title="Permanent Link to <?php the_title_attribute(); ?>"><?php if (strlen($post->post_title) > 65) { echo substr(the_title($before = '', $after = '', FALSE), 0, 65) . '...'; } else { the_title();} ?></a></a></span>

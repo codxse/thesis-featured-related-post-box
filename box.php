@@ -4,7 +4,7 @@
 Name: Related Post Box
 Author: Nadiar AS -- pabelog.com
 Description: Adds Related Post with Img to Thesis.
-Version: 2.1.3
+Version: 2.1.4-develop
 Class: related_post_box
 */
 
@@ -38,24 +38,25 @@ class related_post_box extends thesis_box {
 		return array(
 			'activate' => array(
 				'type' => 'checkbox',
-					'label' => __('Display Related Post with Image', 'thesis'),
-					'options' => array(
-						'img1checktext' => __('Click here to activate Related Post with Image', 'thesis'),
-					),
-					'default' => array(
-						'img1checktext' => false,
-						'html'	=> ''
-					)
+				'label' => __('Display Related Post with Image', 'thesis'),
+				'options' => array(
+					'img1checktext' => __('Click here to activate Related Post with Image', 'thesis'),
+				),
+				'default' => array(
+					'img1checktext' => false,
+					'html'	=> ''
+				)
 			),
 			'relatedtype' => array(
 				'type' => 'radio',
 				'label' => __('Show by', 'thesis'),
-				'tooltip' => sprintf(__('Choose by what related post will be displated. More info at <a href="http://www.wpbeginner.com/wp-themes/how-to-add-related-posts-with-a-thumbnail-without-using-plugins/">WPBegginer</a>', 'thesis')),
+				'tooltip' => sprintf(__('Choose by what related post will be displayed. More info at <a href="http://www.wpbeginner.com/wp-themes/how-to-add-related-posts-with-a-thumbnail-without-using-plugins/" target="_blank">WPBegginer</a>', 'thesis')),
 				'options' => array(
 					'category' => __('By Category', 'thesis'),
 					'tag' => __('By Tag', 'thesis')),
 				'default' => array(
-					'category' => true
+					'category' => true,
+					'html' => ''
 				)
 			),
 			'title' => array(
@@ -103,7 +104,7 @@ class related_post_box extends thesis_box {
 			$number = !empty($this->options['number']) ? $this->options['number'] : '4';
 			$size = !empty($this->options['size']) ? $this->options['size'] : 'thumbnail';
 
-			if (isset($this->options['relatedtype']['tag'])) {
+			if ($options['relatedtype'] == 'tag') {
 				$tags = wp_get_post_tags($post->ID);
 				if ($tags) {
 					$tag_ids = array();

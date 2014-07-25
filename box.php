@@ -50,7 +50,7 @@ class related_post_box extends thesis_box {
 			'relatedtype' => array(
 				'type' => 'radio',
 				'label' => __('Show by', 'thesis'),
-				'tooltip' => sprintf(__('Choose by what related post will be displayed. More info at <a href="http://www.wpbeginner.com/wp-themes/how-to-add-related-posts-with-a-thumbnail-without-using-plugins/" target="_blank">WPBegginer</a>', 'thesis')),
+				'tooltip' => sprintf(__('Choose by what related post will be displayed. More info at <a href="http://www.wpbeginner.com/wp-themes/how-to-add-related-posts-with-a-thumbnail-without-using-plugins/" target="_blank">WPBegginer</a>(default by category)', 'thesis')),
 				'options' => array(
 					'category' => __('By Category', 'thesis'),
 					'tag' => __('By Tag', 'thesis')),
@@ -72,6 +72,13 @@ class related_post_box extends thesis_box {
 				'label' => __('Max Number of Related Post', 'thesis'),
 				'tooltip' => sprintf(__('Enter the Number of Related Post you want to display(leave blank for 3 posts)', 'thesis')),
 				'default' => '4'
+				),
+			'characters' => array(
+				'type' => 'text',
+				'width' => 'tiny',
+				'label' => __('Maximum of Characters for the Title', 'thesis'),
+				'tooltip' => sprintf(__('Enter Maximum of Characters for the Title(leave blank for 64 character)', 'thesis')),
+				'default' => '64'
 				),
 			'size' => array(
 				'type' => 'select',

@@ -4,7 +4,7 @@
 Name: Related Post Box
 Author: Nadiar AS -- pabelog.com
 Description: Adds Related Post with Img to Thesis.
-Version: 2.1.4-production
+Version: 2.1.3
 Class: related_post_box
 */
 
@@ -103,65 +103,78 @@ class related_post_box extends thesis_box {
 			$number = !empty($this->options['number']) ? $this->options['number'] : '4';
 			$size = !empty($this->options['size']) ? $this->options['size'] : 'thumbnail';
 
+			if (isset($this->options['relatedtype']['tag'])) {
+				$tags = wp_get_post_tags($post->ID);
+				if ($tags) {
+					$tag_ids = array();
 
-    		$categories = get_the_category($post->ID);
+					foreach($tags as $individual_tag) $tag_ids[] = $individual_tag->term_id;
+					$args = array(
+						'tag__in' => $tag_ids,
+						'post__not_in' => array($post->ID),
+						'posts_per_page'=>$number, // Number of related posts that will be shown.
+						'caller_get_posts'=>1					
+					);
+				}
+			} else {	
+    			$categories = get_the_category($post->ID);
+	    		if ($categories) {
+	    			$category_ids = array();
+	 				
+	 				foreach($categories as $individual_category) $category_ids[] = $individual_category->term_id;
 
-    		if ($categories) {
-    			$category_ids = array();
- 				
- 				foreach($categories as $individual_category) $category_ids[] = $individual_category->term_id;
+	 				$args=array(
+	    				'category__in' => $category_ids,
+	    				'post__not_in' => array($post->ID),
+	    				'posts_per_page'=> $number, // Number of related posts that will be shown.
+	    				'caller_get_posts'=>1
+	    			);
+	 			}
+	 		} // end if
 
- 				$args=array(
-    				'category__in' => $category_ids,
-    				'post__not_in' => array($post->ID),
-    				'posts_per_page'=> $number, // Number of related posts that will be shown.
-    				'caller_get_posts'=>1
-    			);
+	    			$my_query = new wp_query( $args );
 
-    			$my_query = new wp_query( $args );
+	    			if( $my_query->have_posts() ) { ?>
 
-    			if( $my_query->have_posts() ) { ?>
+	    				<div id="relatedposts">
+	                	<h3 class="related_post_label"><?php echo $title; ?></h3>
+	                	<ul class="related_posts_list">
 
-    				<div id="relatedposts">
-                	<h3 class="related_post_label"><?php echo $title; ?></h3>
-                	<ul class="related_posts_list">
-
-    			  <?php	
+	    			  <?php	
 
 
-    				while( $my_query->have_posts() ) {
-    					$my_query->the_post(); ?>
-    					<!-- related post <li> -->
-						<li>
-							<div class="relatedthumb">
-							  <?php
-							  	if (!isset($this->options['link'])) { ?>
-								<a href="<?php the_permalink()?>" rel="bookmark" title="<?php the_title(); ?>"><?php the_post_thumbnail( $options['size'] ); ?></a>
-							  <?php
-							  	} else {
-							  		the_post_thumbnail( $options['size'] );
-							  	}
-							  ?>
-							</div>
-							<div class="relatedcontent">
-								<span><a href="<?php the_permalink() ?>" rel="bookmark" title="Permanent Link to <?php the_title_attribute(); ?>"><?php if (strlen($post->post_title) > 65) { echo substr(the_title($before = '', $after = '', FALSE), 0, 65) . '...'; } else { the_title();} ?></a></a></span>
-							</div>
-						</li>
-    					<!-- related post </li> -->
-    				<?php
-    				} // end while 
-    				?> 
-    				</ul>
-    				</div>
-    				<?php
-    			} // end if
-			} // end if
-			
-			$post = $orig_post;
-   			wp_reset_query();
-			/*
-			 *	CORE CODE END
-			 */ 
+	    				while( $my_query->have_posts() ) {
+	    					$my_query->the_post(); ?>
+	    					<!-- related post <li> -->
+							<li>
+								<div class="relatedthumb">
+								  <?php
+								  	if (!isset($this->options['link'])) { ?>
+									<a href="<?php the_permalink()?>" rel="bookmark" title="<?php the_title(); ?>"><?php the_post_thumbnail( $options['size'] ); ?></a>
+								  <?php
+								  	} else {
+								  		the_post_thumbnail( $options['size'] );
+								  	}
+								  ?>
+								</div>
+								<div class="relatedcontent">
+									<span><a href="<?php the_permalink() ?>" rel="bookmark" title="Permanent Link to <?php the_title_attribute(); ?>"><?php if (strlen($post->post_title) > 65) { echo substr(the_title($before = '', $after = '', FALSE), 0, 65) . '...'; } else { the_title();} ?></a></a></span>
+								</div>
+							</li>
+	    					<!-- related post </li> -->
+	    				<?php
+	    				} // end while 
+	    				?> 
+	    				</ul>
+	    				</div>
+	    				<?php
+	    			} // end if
+
 		} // end if
-	} // end public 
+		$post = $orig_post;
+			wp_reset_query();
+		/*
+		 *	CORE CODE END
+		 */ 
+	} // end public
 }

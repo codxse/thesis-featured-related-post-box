@@ -4,7 +4,7 @@
 Name: Related Post Box
 Author: Nadiar AS -- pabelog.com
 Description: Adds Related Post with Img to Thesis.
-Version: 2.1.3
+Version: 2.1.4-production
 Class: related_post_box
 */
 
@@ -47,6 +47,17 @@ class related_post_box extends thesis_box {
 						'html'	=> ''
 					)
 			),
+			'relatedtype' => array(
+				'type' => 'radio',
+				'label' => __('Show by', 'thesis'),
+				'tooltip' => sprintf(__('Choose by what related post will be displated. More info at <a href="http://www.wpbeginner.com/wp-themes/how-to-add-related-posts-with-a-thumbnail-without-using-plugins/">WPBegginer</a>', 'thesis')),
+				'options' => array(
+					'category' => __('By Category', 'thesis'),
+					'tag' => __('By Tag', 'thesis')),
+				'default' => array(
+					'category' => true
+				)
+			),
 			'title' => array(
 				'type' => 'text',
 				'width' => 'medium',
@@ -88,11 +99,12 @@ class related_post_box extends thesis_box {
 			 */ 
 			$orig_post = $post;
    			global $post;
-    		$categories = get_the_category($post->ID);
-
-			$title = !empty($this->options['title']) ? $this->options['title'] : 'Related posts';
+   			$title = !empty($this->options['title']) ? $this->options['title'] : 'Related posts';
 			$number = !empty($this->options['number']) ? $this->options['number'] : '4';
 			$size = !empty($this->options['size']) ? $this->options['size'] : 'thumbnail';
+
+
+    		$categories = get_the_category($post->ID);
 
     		if ($categories) {
     			$category_ids = array();
@@ -144,6 +156,7 @@ class related_post_box extends thesis_box {
     				<?php
     			} // end if
 			} // end if
+			
 			$post = $orig_post;
    			wp_reset_query();
 			/*

@@ -47,6 +47,17 @@ class related_post_box extends thesis_box {
 						'html'	=> ''
 					)
 			),
+			'relatedtype' => array(
+				'type' => 'radio',
+				'label' => __('Show by', 'thesis'),
+				'tooltip' => sprintf(__('Choose by what related post will be displated. More info at <a href="http://www.wpbeginner.com/wp-themes/how-to-add-related-posts-with-a-thumbnail-without-using-plugins/">WPBegginer</a>', 'thesis')),
+				'options' => array(
+					'category' => __('By Category', 'thesis'),
+					'tag' => __('By Tag', 'thesis')),
+				'default' => array(
+					'category' => true
+				)
+			),
 			'title' => array(
 				'type' => 'text',
 				'width' => 'medium',
@@ -88,67 +99,82 @@ class related_post_box extends thesis_box {
 			 */ 
 			$orig_post = $post;
    			global $post;
-    		$categories = get_the_category($post->ID);
-
-			$title = !empty($this->options['title']) ? $this->options['title'] : 'Related posts';
+   			$title = !empty($this->options['title']) ? $this->options['title'] : 'Related posts';
 			$number = !empty($this->options['number']) ? $this->options['number'] : '4';
 			$size = !empty($this->options['size']) ? $this->options['size'] : 'thumbnail';
 
-    		if ($categories) {
-    			$category_ids = array();
- 				
- 				foreach($categories as $individual_category) $category_ids[] = $individual_category->term_id;
+			if (isset($this->options['relatedtype']['tag'])) {
+				$tags = wp_get_post_tags($post->ID);
+				if ($tags) {
+					$tag_ids = array();
 
- 				$args=array(
-    				'category__in' => $category_ids,
-    				'post__not_in' => array($post->ID),
-    				'posts_per_page'=> $number, // Number of related posts that will be shown.
-    				'caller_get_posts'=>1
-    			);
+					foreach($tags as $individual_tag) $tag_ids[] = $individual_tag->term_id;
+					$args = array(
+						'tag__in' => $tag_ids,
+						'post__not_in' => array($post->ID),
+						'posts_per_page'=>$number, // Number of related posts that will be shown.
+						'caller_get_posts'=>1					
+					);
+				}
+			} else {	
+    			$categories = get_the_category($post->ID);
+	    		if ($categories) {
+	    			$category_ids = array();
+	 				
+	 				foreach($categories as $individual_category) $category_ids[] = $individual_category->term_id;
 
-    			$my_query = new wp_query( $args );
+	 				$args=array(
+	    				'category__in' => $category_ids,
+	    				'post__not_in' => array($post->ID),
+	    				'posts_per_page'=> $number, // Number of related posts that will be shown.
+	    				'caller_get_posts'=>1
+	    			);
+	 			}
+	 		} // end if
 
-    			if( $my_query->have_posts() ) { ?>
+	    			$my_query = new wp_query( $args );
 
-    				<div id="relatedposts">
-                	<h3 class="related_post_label"><?php echo $title; ?></h3>
-                	<ul class="related_posts_list">
+	    			if( $my_query->have_posts() ) { ?>
 
-    			  <?php	
+	    				<div id="relatedposts">
+	                	<h3 class="related_post_label"><?php echo $title; ?></h3>
+	                	<ul class="related_posts_list">
+
+	    			  <?php	
 
 
-    				while( $my_query->have_posts() ) {
-    					$my_query->the_post(); ?>
-    					<!-- related post <li> -->
-						<li>
-							<div class="relatedthumb">
-							  <?php
-							  	if (!isset($this->options['link'])) { ?>
-								<a href="<?php the_permalink()?>" rel="bookmark" title="<?php the_title(); ?>"><?php the_post_thumbnail( $options['size'] ); ?></a>
-							  <?php
-							  	} else {
-							  		the_post_thumbnail( $options['size'] );
-							  	}
-							  ?>
-							</div>
-							<div class="relatedcontent">
-								<span><a href="<?php the_permalink() ?>" rel="bookmark" title="Permanent Link to <?php the_title_attribute(); ?>"><?php if (strlen($post->post_title) > 65) { echo substr(the_title($before = '', $after = '', FALSE), 0, 65) . '...'; } else { the_title();} ?></a></a></span>
-							</div>
-						</li>
-    					<!-- related post </li> -->
-    				<?php
-    				} // end while 
-    				?> 
-    				</ul>
-    				</div>
-    				<?php
-    			} // end if
-			} // end if
-			$post = $orig_post;
-   			wp_reset_query();
-			/*
-			 *	CORE CODE END
-			 */ 
+	    				while( $my_query->have_posts() ) {
+	    					$my_query->the_post(); ?>
+	    					<!-- related post <li> -->
+							<li>
+								<div class="relatedthumb">
+								  <?php
+								  	if (!isset($this->options['link'])) { ?>
+									<a href="<?php the_permalink()?>" rel="bookmark" title="<?php the_title(); ?>"><?php the_post_thumbnail( $options['size'] ); ?></a>
+								  <?php
+								  	} else {
+								  		the_post_thumbnail( $options['size'] );
+								  	}
+								  ?>
+								</div>
+								<div class="relatedcontent">
+									<span><a href="<?php the_permalink() ?>" rel="bookmark" title="Permanent Link to <?php the_title_attribute(); ?>"><?php if (strlen($post->post_title) > 65) { echo substr(the_title($before = '', $after = '', FALSE), 0, 65) . '...'; } else { the_title();} ?></a></a></span>
+								</div>
+							</li>
+	    					<!-- related post </li> -->
+	    				<?php
+	    				} // end while 
+	    				?> 
+	    				</ul>
+	    				</div>
+	    				<?php
+	    			} // end if
+
 		} // end if
-	} // end public 
+		$post = $orig_post;
+			wp_reset_query();
+		/*
+		 *	CORE CODE END
+		 */ 
+	} // end public
 }

@@ -140,43 +140,43 @@ class related_post_box extends thesis_box {
 	 			}
 	 		} // end if
 
-	    			$my_query = new wp_query( $args );
+			$my_query = new wp_query( $args );
 
-	    			if( $my_query->have_posts() ) { ?>
+			if( $my_query->have_posts() ) { ?>
 
-	    				<div id="relatedposts">
-	                	<h3 class="related_post_label"><?php echo $title; ?></h3>
-	                	<ul class="related_posts_list">
+				<div id="relatedposts">
+            	<h3 class="related_post_label"><?php echo $title; ?></h3>
+            	<ul class="related_posts_list">
 
-	    			  <?php	
+			  <?php	
 
 
-	    				while( $my_query->have_posts() ) {
-	    					$my_query->the_post(); ?>
-	    					<!-- related post <li> -->
-							<li>
-								<div class="relatedthumb">
-								  <?php
-								  	if (!isset($this->options['link'])) { ?>
-									<a href="<?php the_permalink()?>" rel="bookmark" title="<?php the_title(); ?>"><?php the_post_thumbnail( $options['size'] ); ?></a>
-								  <?php
-								  	} else {
-								  		the_post_thumbnail( $options['size'] );
-								  	}
-								  ?>
-								</div>
-								<div class="relatedcontent">
-									<span><a href="<?php the_permalink() ?>" rel="bookmark" title="Permanent Link to <?php the_title_attribute(); ?>"><?php if (strlen($post->post_title) > 65) { echo substr(the_title($before = '', $after = '', FALSE), 0, 65) . '...'; } else { the_title();} ?></a></a></span>
-								</div>
-							</li>
-	    					<!-- related post </li> -->
-	    				<?php
-	    				} // end while 
-	    				?> 
-	    				</ul>
-	    				</div>
-	    				<?php
-	    			} // end if
+				while( $my_query->have_posts() ) {
+					$my_query->the_post(); ?>
+					<!-- related post <li> -->
+					<li>
+						<div class="relatedthumb">
+						  <?php
+						  	if (!isset($this->options['link'])) { ?>
+							<a href="<?php the_permalink()?>" rel="bookmark" title="<?php the_title(); ?>"><?php the_post_thumbnail( $options['size'] ); ?></a>
+						  <?php
+						  	} else {
+						  		the_post_thumbnail( $options['size'] );
+						  	}
+						  ?>
+						</div>
+						<div class="relatedcontent">
+							<span><a href="<?php the_permalink() ?>" rel="bookmark" title="Permanent Link to <?php the_title_attribute(); ?>"><?php if (strlen($post->post_title) > 65) { echo substr(the_title($before = '', $after = '', FALSE), 0, 65) . '...'; } else { the_title();} ?></a></a></span>
+						</div>
+					</li>
+					<!-- related post </li> -->
+				<?php
+				} // end while 
+				?> 
+				</ul>
+				</div>
+				<?php
+			} // end if
 
 		} // end if
 		$post = $orig_post;

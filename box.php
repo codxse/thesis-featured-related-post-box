@@ -4,7 +4,7 @@
 Name: Related Post Box
 Author: Nadiar AS -- pabelog.com
 Description: Adds Related Post with Img to Thesis.
-Version: 2.1.3
+Version: 2.1.4-develop
 Class: related_post_box
 */
 
@@ -38,24 +38,25 @@ class related_post_box extends thesis_box {
 		return array(
 			'activate' => array(
 				'type' => 'checkbox',
-					'label' => __('Display Related Post with Image', 'thesis'),
-					'options' => array(
-						'img1checktext' => __('Click here to activate Related Post with Image', 'thesis'),
-					),
-					'default' => array(
-						'img1checktext' => false,
-						'html'	=> ''
-					)
+				'label' => __('Display Related Post with Image', 'thesis'),
+				'options' => array(
+					'img1checktext' => __('Click here to activate Related Post with Image', 'thesis'),
+				),
+				'default' => array(
+					'img1checktext' => false,
+					'html'	=> ''
+				)
 			),
 			'relatedtype' => array(
 				'type' => 'radio',
 				'label' => __('Show by', 'thesis'),
-				'tooltip' => sprintf(__('Choose by what related post will be displated. More info at <a href="http://www.wpbeginner.com/wp-themes/how-to-add-related-posts-with-a-thumbnail-without-using-plugins/">WPBegginer</a>', 'thesis')),
+				'tooltip' => sprintf(__('Choose by what related post will be displayed. More info at <a href="http://www.wpbeginner.com/wp-themes/how-to-add-related-posts-with-a-thumbnail-without-using-plugins/" target="_blank">WPBegginer</a>(default by category)', 'thesis')),
 				'options' => array(
 					'category' => __('By Category', 'thesis'),
 					'tag' => __('By Tag', 'thesis')),
 				'default' => array(
-					'category' => true
+					'category' => true,
+					'html' => ''
 				)
 			),
 			'title' => array(
@@ -71,6 +72,13 @@ class related_post_box extends thesis_box {
 				'label' => __('Max Number of Related Post', 'thesis'),
 				'tooltip' => sprintf(__('Enter the Number of Related Post you want to display(leave blank for 3 posts)', 'thesis')),
 				'default' => '4'
+				),
+			'characters' => array(
+				'type' => 'text',
+				'width' => 'tiny',
+				'label' => __('Maximum of Characters for the Title', 'thesis'),
+				'tooltip' => sprintf(__('Enter Maximum of Characters for the Title(leave blank for 64 character)', 'thesis')),
+				'default' => '64'
 				),
 			'size' => array(
 				'type' => 'select',
@@ -103,7 +111,7 @@ class related_post_box extends thesis_box {
 			$number = !empty($this->options['number']) ? $this->options['number'] : '4';
 			$size = !empty($this->options['size']) ? $this->options['size'] : 'thumbnail';
 
-			if (isset($this->options['relatedtype']['tag'])) {
+			if ($options['relatedtype'] == 'tag') {
 				$tags = wp_get_post_tags($post->ID);
 				if ($tags) {
 					$tag_ids = array();
@@ -132,43 +140,43 @@ class related_post_box extends thesis_box {
 	 			}
 	 		} // end if
 
-	    			$my_query = new wp_query( $args );
+			$my_query = new wp_query( $args );
 
-	    			if( $my_query->have_posts() ) { ?>
+			if( $my_query->have_posts() ) { ?>
 
-	    				<div id="relatedposts">
-	                	<h3 class="related_post_label"><?php echo $title; ?></h3>
-	                	<ul class="related_posts_list">
+				<div id="relatedposts">
+            	<h3 class="related_post_label"><?php echo $title; ?></h3>
+            	<ul class="related_posts_list">
 
-	    			  <?php	
+			  <?php	
 
 
-	    				while( $my_query->have_posts() ) {
-	    					$my_query->the_post(); ?>
-	    					<!-- related post <li> -->
-							<li>
-								<div class="relatedthumb">
-								  <?php
-								  	if (!isset($this->options['link'])) { ?>
-									<a href="<?php the_permalink()?>" rel="bookmark" title="<?php the_title(); ?>"><?php the_post_thumbnail( $options['size'] ); ?></a>
-								  <?php
-								  	} else {
-								  		the_post_thumbnail( $options['size'] );
-								  	}
-								  ?>
-								</div>
-								<div class="relatedcontent">
-									<span><a href="<?php the_permalink() ?>" rel="bookmark" title="Permanent Link to <?php the_title_attribute(); ?>"><?php if (strlen($post->post_title) > 65) { echo substr(the_title($before = '', $after = '', FALSE), 0, 65) . '...'; } else { the_title();} ?></a></a></span>
-								</div>
-							</li>
-	    					<!-- related post </li> -->
-	    				<?php
-	    				} // end while 
-	    				?> 
-	    				</ul>
-	    				</div>
-	    				<?php
-	    			} // end if
+				while( $my_query->have_posts() ) {
+					$my_query->the_post(); ?>
+					<!-- related post <li> -->
+					<li>
+						<div class="relatedthumb">
+						  <?php
+						  	if (!isset($this->options['link'])) { ?>
+							<a href="<?php the_permalink()?>" rel="bookmark" title="<?php the_title(); ?>"><?php the_post_thumbnail( $options['size'] ); ?></a>
+						  <?php
+						  	} else {
+						  		the_post_thumbnail( $options['size'] );
+						  	}
+						  ?>
+						</div>
+						<div class="relatedcontent">
+							<span><a href="<?php the_permalink() ?>" rel="bookmark" title="Permanent Link to <?php the_title_attribute(); ?>"><?php if (strlen($post->post_title) > 65) { echo substr(the_title($before = '', $after = '', FALSE), 0, 65) . '...'; } else { the_title();} ?></a></a></span>
+						</div>
+					</li>
+					<!-- related post </li> -->
+				<?php
+				} // end while 
+				?> 
+				</ul>
+				</div>
+				<?php
+			} // end if
 
 		} // end if
 		$post = $orig_post;

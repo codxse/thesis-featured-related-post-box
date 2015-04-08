@@ -4,7 +4,7 @@
 Name: Related Post Box
 Author: Nadiar AS -- pabelog.com
 Description: Adds Related Post with Img to Thesis.
-Version: 2.1.4-develop
+Version: 2.1.5-develop
 Class: related_post_box
 */
 
@@ -91,7 +91,14 @@ class related_post_box extends thesis_box {
 				'options' => array(
 					'link' => __('Link image to post', 'thesis')),
 				'default' => array(
-					'link' => true))
+					'link' => true)),
+			'ads' => array(
+				'type' => 'textarea',
+				'label' => __('Your ads code', 'thesis'),
+				'tooltip' => sprintf(__('The best match is 300x600 ads code', 'thesis')),
+				'code' => true,
+				'default' => ''
+				)
 		);
 	}
 
@@ -110,6 +117,7 @@ class related_post_box extends thesis_box {
    			$title = !empty($this->options['title']) ? $this->options['title'] : 'Related posts';
 			$number = !empty($this->options['number']) ? $this->options['number'] : '4';
 			$size = !empty($this->options['size']) ? $this->options['size'] : 'thumbnail';
+			$ads = !empty($this->options['ads']) ? $this->options['ads'] : '';
 
 			if ($options['relatedtype'] == 'tag') {
 				$tags = wp_get_post_tags($post->ID);
@@ -145,44 +153,48 @@ class related_post_box extends thesis_box {
 			if( $my_query->have_posts() ) { ?>
 
 				<div id="relatedposts">
-            	<h3 class="related_post_label"><?php echo $title; ?></h3>
-            	<ul class="related_posts_list">
-
-			  <?php	
-
-
-				while( $my_query->have_posts() ) {
-					$my_query->the_post(); ?>
-					<!-- related post <li> -->
-					<li>
-						<div class="relatedthumb">
-						  <?php
-						  	if (!isset($this->options['link'])) { ?>
-							<a href="<?php the_permalink()?>" rel="bookmark" title="<?php the_title(); ?>"><?php the_post_thumbnail( $options['size'] ); ?></a>
-						  <?php
-						  	} else {
-						  		the_post_thumbnail( $options['size'] );
-						  	}
-						  ?>
+          <h3 class="related_post_label"><?php echo $title; ?></h3>
+					<div style="width: 100%">
+						<!-- First Column -->
+						<div class="adpad">
+							<?php echo $ads; ?>			
 						</div>
-						<div class="relatedcontent">
-							<span><a href="<?php the_permalink() ?>" rel="bookmark" title="Permanent Link to <?php the_title_attribute(); ?>"><?php if (strlen($post->post_title) > 65) { echo substr(the_title($before = '', $after = '', FALSE), 0, 65) . '...'; } else { the_title();} ?></a></a></span>
+						<!-- Second Column Will be related post-->
+						<div style="float: left">
+						<!-- Related Post Begin -->
+			        <ul class="related_posts_list">
+							  <?php	while( $my_query->have_posts() ) {
+									$my_query->the_post(); ?>
+									<!-- related post <li> -->
+									<li>
+										<div class="relatedthumb">
+										  <?php
+										  	if (!isset($this->options['link'])) { ?>
+											<a href="<?php the_permalink()?>" rel="bookmark" title="<?php the_title(); ?>"><?php the_post_thumbnail( $options['size'] ); ?></a>
+										  <?php
+										  	} else {
+										  		the_post_thumbnail( $options['size'] );
+										  	}
+										  ?>
+										</div>
+										<div class="relatedcontent">
+											<p class="caption aligncenter italic"><a href="<?php the_permalink() ?>" rel="bookmark" title="Permanent Link to <?php the_title_attribute(); ?>"><?php if (strlen($post->post_title) > 65) { echo substr(the_title($before = '', $after = '', FALSE), 0, 65) . '...'; } else { the_title();} ?></a></a></p>
+										</div>
+									</li>
+								<?php
+								} // end while ?> 
+							</ul>
+						<!-- Related Post End -->
 						</div>
-					</li>
-					<!-- related post </li> -->
-				<?php
-				} // end while 
-				?> 
-				</ul>
+					</div>
 				</div>
 				<?php
-			} // end if
-
-		} // end if
+			} // end if query
+		} // end if activate
 		$post = $orig_post;
 			wp_reset_query();
 		/*
 		 *	CORE CODE END
 		 */ 
-	} // end public
+	} // end public funtion
 }
